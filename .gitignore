@@ -1,0 +1,14 @@
+# Datasets
+0 - Datasets/
+
+# Personal Files
+6 - personal/
+
+# Cache Files
+.idea/
+.git/
+__pychache__/
+
+# Miscellaneous
+5 - working-files/z - experimentation.py
+5 - working-files/x - reference.py
