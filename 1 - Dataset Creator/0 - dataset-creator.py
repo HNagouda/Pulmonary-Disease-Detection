@@ -24,7 +24,7 @@ chexpert_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Det
 # chexpert_datadir = os.path.join(chexpert_dir, 'data')
 
 # directory of a new folder for creating "log" files
-log_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/4 - custom_files"
+log_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/1 - Dataset Creator"
 
 # new directory for the resized (downscaled) dataset
 super_dataset_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/0 - Datasets/Super Dataset"
@@ -39,7 +39,6 @@ SEED = 777  # For reproducibility
 
 # Setting Seeds
 random.seed(SEED)
-
 
 # -----------------------------------------------------------------------------
 #     ================ CREATING CSVs of AVAILABLE FILES ================
@@ -204,34 +203,32 @@ for resolution in resize_to:
             else:
                 save_path = label_test_subdir
 
-            def resize_and_grayscale(image):
+            def resize(image):
                 img = cv2.imread(image)
                 resized_image = cv2.resize(img, resolution, interpolation=cv2.INTER_LINEAR)
-                resized_grayscale = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
 
                 destination_path = f"{save_path}/{image.split('/')[-1]}"
-                cv2.imwrite(destination_path, resized_grayscale)
+                cv2.imwrite(destination_path, resized_image)
 
-            def resize_grayscale_and_flip(image):
+            def resize_and_flip(image):
                 img = cv2.imread(image)
                 resized_image = cv2.resize(img, resolution, interpolation=cv2.INTER_LINEAR)
-                resized_grayscale = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-                flipped_image = cv2.flip(resized_grayscale, 1)
+                flipped_image = cv2.flip(resized_image, 1)
 
-                grayscale_destination_path = f"{save_path}/{image.split('/')[-1]}"
+                resized_destination_path = f"{save_path}/{image.split('/')[-1]}"
                 flipped_destination_path = f"{save_path}/(flipped){image.split('/')[-1]}"
 
-                cv2.imwrite(grayscale_destination_path, resized_grayscale)
+                cv2.imwrite(resized_destination_path, resized_image)
                 cv2.imwrite(flipped_destination_path, flipped_image)
 
             if label != 'covid-19':
                 Parallel(n_jobs=N_JOBS, verbose=10)(
-                    delayed(resize_and_grayscale)(f) for f in file_split
+                    delayed(resize)(f) for f in file_split
                 )
 
             elif label == 'covid-19':
                 Parallel(n_jobs=N_JOBS, verbose=10)(
-                    delayed(resize_grayscale_and_flip)(f) for f in file_split
+                    delayed(resize_and_flip)(f) for f in file_split
                 )
             else:
                 pass
