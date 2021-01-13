@@ -1,7 +1,9 @@
+import os
 import time
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import *
+from tensorflow.keras.models import load_model
 
 from Datagen import ImgDataGenerator
 
@@ -75,22 +77,10 @@ def get_mixed_precision_opt(optimizer):
 # =================================== MODEL COMPILING ===================================
 
 class ModelTrainLoop:
-    def __init__(self, augmentation_dict, use_augmentations, train_dir, test_dir,
-                 validation_split, target_size, batch_size, color_mode, shuffle, seed,
-                 model, optimizer, enable_mixed_precision, loss, metrics,
-                 tensorboard_logs_dir, model_checkpoint_filepath):
-
-        self.augmentation_dict = augmentation_dict  # Datagenerator Param
-        self.use_augmentations = use_augmentations  # Datagenerator Param - Boolean
-        self.train_dir = train_dir  # Datagenerator Param - Train Images Dir
-        self.test_dir = test_dir  # Datagenerator Param - Test Images Dir
-        self.validation_split = validation_split  # Datagenerator Param
-        self.target_size = target_size  # Datagenerator Param
-        self.batch_size = batch_size  # Datagenerator Param
-        self.color_mode = color_mode  # Datagenerator Param
-        self.shuffle = shuffle  # Datagenerator Param
-        self.seed = seed  # Datagenerator Param
-
+    def __init__(self, datagen_params, model, optimizer, enable_mixed_precision, loss, metrics,
+                 tensorboard_logs_dir, model_checkpoint_filepath, use_callbacks, epochs, steps_per_epoch,
+                 validation_steps, plot_dir, runtime_name, saved_models_dir, model_name):
+        self.datagen_params = datagen_params
         self.model = model  # Tensorflow Model
         self.optimizer = optimizer  # Keras Optimizer
         self.enable_mixed_precision = enable_mixed_precision   # Boolean - set true if NVIDIA gpu contains RT cores
@@ -98,39 +88,50 @@ class ModelTrainLoop:
         self.metrics = metrics
         self.tensorboard_logs_dir = tensorboard_logs_dir    # Directory to save tensorboard logs to
         self.model_checkpoint_filepath = model_checkpoint_filepath  # ########################################
+        self.use_callbacks = use_callbacks
+        self.epochs = epochs
+        self.steps_per_epoch = steps_per_epoch
+        self.validation_steps = validation_steps
+        self.plot_dir = plot_dir
+        self.runtime_name = runtime_name
+        self.saved_models_dir = saved_models_dir
+        self.model_name = model_name
 
-    def compile_model(self, model, enable_mixed_precision):
-        if enable_mixed_precision:
+    def compile_model(self):
+        if self.enable_mixed_precision:
             optimizer = get_mixed_precision_opt(self.optimizer)
         else:
             optimizer = self.optimizer
 
-        model.compile(optimizer=optimizer, loss=self.loss, metrics=self.metrics)
+        self.model = self.model.compile(optimizer=optimizer, loss=self.loss, metrics=self.metrics)
 
-        return model
+        return self.model
 
-    def train_model(self, model, epochs, use_callbacks):
+    def import_generators(self):
+        train_generator, test_generator = ImgDataGenerator(**self.datagen_params)
+
+        return [train_generator, test_generator]
+
+    def train_model(self, train_generator):
         callbacks = get_model_callbacks(self.tensorboard_logs_dir, self.model_checkpoint_filepath)
 
         start = time.time()
 
-        if use_callbacks:
-            history = model.fit(
+        if self.use_callbacks:
+            history = self.model.fit(
                 train_generator,
-                epochs=epochs,
-                steps_per_epoch=steps_per_epoch,
+                epochs=self.epochs,
+                steps_per_epoch=self.steps_per_epoch,
                 callbacks=callbacks,
-                validation_data=test_generator,
-                validation_steps=validation_steps
+                validation_steps=self.validation_steps
             )
 
         else:
-            history = model.fit(
+            history = self.model.fit(
                 train_generator,
-                epochs=epochs,
-                steps_per_epoch=steps_per_epoch,
-                validation_data=test_generator,
-                validation_steps=validation_steps
+                epochs=self.epochs,
+                steps_per_epoch=self.steps_per_epoch,
+                validation_steps=self.validation_steps
             )
 
         stop = time.time()
@@ -138,60 +139,66 @@ class ModelTrainLoop:
 
         return history, total_training_time
 
-
 # ================================= TRAINING ANALYSIS ===================================
 
-def export_model_stats(model_history, total_training_time, plot_path):
-    plot_title = f"""Visualizing Model Progress
-    Total Training Time: {total_training_time} seconds"""
+    def export_model_stats(self, model_history, total_training_time):
+        plot_title = f"""Visualizing Model Progress
+        Total Training Time: {total_training_time} seconds"""
 
-    history = model_history.history
+        history = model_history.history
 
-    fig = make_subplots(rows=1, cols=2,
-                        subplot_titles=['Loss', 'Accuracy'])
+        fig = make_subplots(rows=1, cols=2,
+                            subplot_titles=['Loss', 'Accuracy'])
 
-    fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_loss'],
-                             mode='lines+markers', name='Loss'),
-                  row=1, col=1)
+        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_loss'],
+                                 mode='lines+markers', name='Loss'),
+                      row=1, col=1)
 
-    fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_binary_accuracy'],
-                             mode='lines+markers', name='Accuracy'),
-                  row=1, col=2)
+        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_binary_accuracy'],
+                                 mode='lines+markers', name='Accuracy'),
+                      row=1, col=2)
 
-    fig.update_xaxes(title_text='Epochs', row=1, col=1)
-    fig.update_xaxes(title_text='Epochs', row=1, col=2)
+        fig.update_xaxes(title_text='Epochs', row=1, col=1)
+        fig.update_xaxes(title_text='Epochs', row=1, col=2)
 
-    fig.update_layout(title=plot_title)
-    fig.write_image(plot_path)
+        fig.update_layout(title=plot_title)
+        fig.write_image(os.path.join(self.plot_dir, self.runtime_name))
 
+    def save_model(self):
+        self.model.save(f"{self.saved_models_dir}/{self.model_name}.hdf5")
 
-def save_model(trained_model, models_dir, model_name):
-    trained_model = trained_model
-    trained_model.save(f"{models_dir}/{model_name}.hdf5")
+    def load_saved_model(self):
+        model = load_model(f"{self.saved_models_dir}/{self.model_name}.hdf5")
 
-
-def load_saved_model(models_dir, model_name):
-    model = load_model(f"{models_dir}/{model_name}.hdf5")
-
-    return model
-
+        return model
 
 # =================================== MODEL EVALUATION ===================================
-def evaluate_model(data_generator, models_dir, saved_model_name):
-    saved_model = load_saved_model(models_dir, saved_model_name)
+    def evaluate_model(self, test_generator):
+        saved_model = self.load_saved_model()
+        scores = saved_model.evaluate(test_generator, steps=10)
 
-    scores = saved_model.evaluate(data_generator, steps=10)
+        return scores
 
-    return scores
+    def print_scores(self, evaluated_scores):
+        loss, accuracy = evaluated_scores
 
+        print(f"""
+        Evaluation Loss: {loss}
+        Evaluation Accuracy: {accuracy}
+        """)
 
-def print_scores(evaluated_scores):
-    loss, accuracy = evaluated_scores
+    def run_loop(self):
+        self.compile_model()
+        train_generator, test_generator = self.import_generators()
 
-    print(f"""
-    Evaluation Loss: {loss}
-    Evaluation Accuracy: {accuracy}
-    """)
+        history, total_training_time = self.train_model(train_generator)
+        self.export_model_stats(history, total_training_time)
+
+        self.save_model()
+
+        scores = self.evaluate_model(test_generator)
+        self.print_scores(scores)
+
 
 
 

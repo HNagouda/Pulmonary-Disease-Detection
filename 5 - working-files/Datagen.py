@@ -43,3 +43,8 @@ class ImgDataGenerator:
         )
 
         return [train_datagen, test_datagen]
+
+    def return_datagens(self):
+        train_datagen, test_datagen = self.construct_datagens()
+
+        return [train_datagen, test_datagen]

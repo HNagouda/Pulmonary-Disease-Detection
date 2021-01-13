@@ -192,7 +192,7 @@ for resolution in resize_to:
             train_set, test_set = filenames[:k_covid], filenames[k_covid:]
             filenames = [train_set, test_set]
         elif label != 'covid-19':
-            train_set, test_set = filenames[:k_except_covid], filenames[k_except_covid:]
+            train_set, test_set = filenames[:k_except_covid], filenames[k_except_covid:k_except_covid+500]
             filenames = [train_set, test_set]
         else:
             pass
