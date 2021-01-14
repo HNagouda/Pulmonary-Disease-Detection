@@ -12,22 +12,22 @@ from joblib import Parallel, delayed
 #     ========================== DIRECTORIES ===========================
 
 # directory of "NIH multiple disease dataset"
-nih_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/0 - Datasets/NIH Multiple Disease Dataset"
+nih_dir = "/0_Datasets/NIH Multiple Disease Dataset"
 nih_imgdir = os.path.join(nih_dir, "data")
 
 # directory of the auto-formed "data" dir from COVID-NETx 
-auto_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/0 - Datasets/autoform"
+auto_dir = "/0_Datasets/autoform"
 auto_datadir = os.path.join(auto_dir, "data")
 
 # directory of the CheXpert Dataset
-chexpert_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/0 - Datasets/CheXpert - Stanford"
+chexpert_dir = "/0_Datasets/CheXpert - Stanford"
 # chexpert_datadir = os.path.join(chexpert_dir, 'data')
 
 # directory of a new folder for creating "log" files
-log_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/1 - Dataset Creator"
+log_dir = "/1_Dataset Creator"
 
 # new directory for the resized (downscaled) dataset
-super_dataset_dir = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection/0 - Datasets/Super Dataset"
+super_dataset_dir = "/0_Datasets/Super Dataset"
 
 # parameter --> the new dataset will be resized to the following sizes
 # pass one or more sizes in the format (height, width, channels)

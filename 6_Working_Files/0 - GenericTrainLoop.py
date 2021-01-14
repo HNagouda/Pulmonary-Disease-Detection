@@ -26,19 +26,9 @@ def reducelronplateau():
     return reduce_lr_on_plateau
 
 
-def tensorboard(logs_dir):
-    tensor_board = TensorBoard(
-        log_dir=logs_dir, histogram_freq=0,
-        write_graph=True, write_images=False,
-        update_freq='epoch', profile_batch=2,
-        embeddings_freq=0, embeddings_metadata=None)
-
-    return tensor_board
-
-
-def modelcheckpoint(checkpoint_filepath):
+def modelcheckpoint(model_checkpoint_dir, runtime_name):
     model_checkpoint = ModelCheckpoint(
-        filepath=checkpoint_filepath,
+        filepath=os.path.join(model_checkpoint_dir, runtime_name),
         save_weights_only=True, save_best_only=True,
         monitor='val_acc', mode='max')
 
@@ -54,11 +44,10 @@ def earlystopping():
     return early_stopping
 
 
-def get_model_callbacks(tensorboard_logs_dir, model_checkpoint_filepath):
+def get_model_callbacks(model_checkpoint_dir, runtime_name):
     callbacks = [
         reducelronplateau(),
-        tensorboard(tensorboard_logs_dir),
-        modelcheckpoint(model_checkpoint_filepath),
+        modelcheckpoint(model_checkpoint_dir, runtime_name),
         earlystopping()
     ]
 
@@ -78,7 +67,7 @@ def get_mixed_precision_opt(optimizer):
 
 class ModelTrainLoop:
     def __init__(self, datagen_params, model, optimizer, enable_mixed_precision, loss, metrics,
-                 tensorboard_logs_dir, model_checkpoint_filepath, use_callbacks, epochs, steps_per_epoch,
+                 model_checkpoint_dir, use_callbacks, epochs, steps_per_epoch,
                  validation_steps, plot_dir, runtime_name, saved_models_dir, model_name):
         self.datagen_params = datagen_params
         self.model = model  # Tensorflow Model
@@ -86,16 +75,15 @@ class ModelTrainLoop:
         self.enable_mixed_precision = enable_mixed_precision   # Boolean - set true if NVIDIA gpu contains RT cores
         self.loss = loss    # Keras/custom loss function
         self.metrics = metrics
-        self.tensorboard_logs_dir = tensorboard_logs_dir    # Directory to save tensorboard logs to
-        self.model_checkpoint_filepath = model_checkpoint_filepath  # ########################################
-        self.use_callbacks = use_callbacks
+        self.model_checkpoint_dir = model_checkpoint_dir  # Directory to save model checkpoints
+        self.use_callbacks = use_callbacks  # Whether to use callbacks
         self.epochs = epochs
         self.steps_per_epoch = steps_per_epoch
         self.validation_steps = validation_steps
-        self.plot_dir = plot_dir
-        self.runtime_name = runtime_name
-        self.saved_models_dir = saved_models_dir
-        self.model_name = model_name
+        self.plot_dir = plot_dir    # Directory to save model progress (accuracy/loss vs epochs) plots
+        self.runtime_name = runtime_name    # *IMPORTANT* will be used as the name for "model_progress_time"
+        self.model_name = model_name    # *IMPORTANT* will be used as the name for the model's hdf5 save file
+        self.saved_models_dir = saved_models_dir    # Directory to save models after training
 
     def compile_model(self):
         if self.enable_mixed_precision:
@@ -113,7 +101,7 @@ class ModelTrainLoop:
         return [train_generator, test_generator]
 
     def train_model(self, train_generator):
-        callbacks = get_model_callbacks(self.tensorboard_logs_dir, self.model_checkpoint_filepath)
+        callbacks = get_model_callbacks(self.model_checkpoint_dir, self.runtime_name)
 
         start = time.time()
 
@@ -177,14 +165,9 @@ class ModelTrainLoop:
         saved_model = self.load_saved_model()
         scores = saved_model.evaluate(test_generator, steps=10)
 
-        return scores
-
-    def print_scores(self, evaluated_scores):
-        loss, accuracy = evaluated_scores
-
         print(f"""
-        Evaluation Loss: {loss}
-        Evaluation Accuracy: {accuracy}
+        Evaluation Loss: {scores[0]}
+        Evaluation Accuracy: {scores[1]}
         """)
 
     def run_loop(self):
@@ -196,9 +179,4 @@ class ModelTrainLoop:
 
         self.save_model()
 
-        scores = self.evaluate_model(test_generator)
-        self.print_scores(scores)
-
-
-
-
+        self.evaluate_model(test_generator)

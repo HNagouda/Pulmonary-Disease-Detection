@@ -1,8 +1,8 @@
 # Datasets
-0 - Datasets/
+0_Datasets/
 
 # Personal Files
-6 - personal/
+X-Personal/
 
 # Cache Files
 .idea/
@@ -10,5 +10,5 @@
 __pychache__/
 
 # Miscellaneous
-5 - working-files/z - experimentation.py
-5 - working-files/x - reference.py
+6_Working_Files/z - experimentation.py
+6_Working_Files/x - reference.py
