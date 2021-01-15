@@ -6,11 +6,12 @@ from tensorflow.keras.initializers import *
 from tensorflow.keras.regularizers import *
 
 
-def train_loop_tester(input_shape):
+def loop_tester(input_shape):
     model = Sequential()
 
     model.add(Conv2D(16, (3, 3), strides=(1, 1), kernel_initializer='glorot_uniform', bias_initializer='zeros',
-                     kernel_regularizer='l2', padding='valid', data_format="channels_last", input_shape=input_shape))
+                     kernel_regularizer='l2', padding='valid', data_format="channels_last",
+                     input_shape=input_shape))
     # model.add(PReLU(alpha_initializer=VarianceScaling(scale=1.0, mode='fan_in', distribution='normal', seed=None)))
     model.add(Activation(relu))
     model.add(BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001))

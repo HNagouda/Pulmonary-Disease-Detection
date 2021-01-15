@@ -7,5 +7,5 @@ from .version import __version__
 from .optimizer import Optimizer
 
 __all__ = [
-    'Optimizer',
+    'Optimizer'
 ]
