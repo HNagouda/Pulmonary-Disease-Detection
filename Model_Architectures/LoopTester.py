@@ -41,7 +41,7 @@ def loop_tester(input_shape):
     model.add(BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001))
     model.add(AlphaDropout(0.5, noise_shape=None, seed=None))
 
-    model.add(Dense(2))
+    model.add(Dense(14))
     model.add(Activation('softmax'))
 
     return model

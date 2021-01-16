@@ -2,8 +2,6 @@ import os
 import Train_Loops
 import Model_Architectures
 from tensorflow.keras.optimizers import *
-from tensorflow.keras.losses import *
-from tensorflow.keras.metrics import *
 
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
@@ -15,7 +13,7 @@ base_path = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detect
 
 basic_configs = {
     # RUNTIME NAME
-    'runtime_name': "check",  # MUST change this every time the code is run
+    'runtime_name': "Train_Loop_Trial_4",  # MUST change this every time the code is run
 
     # PATHS
     'image_data_dir': os.path.join(base_path, '0_Datasets', 'Super Dataset', '256x256'),
@@ -26,7 +24,7 @@ basic_configs = {
 }
 
 model_configs = {
-    'input_shape': (256, 256, 3),
+    'input_shape': (256, 256, 1),
 
     # Adam Optimizer arguments
     'adam_opt': {
@@ -38,18 +36,18 @@ model_configs = {
     }
 }
 
-model_to_train = Model_Architectures.LoopTester.loop_tester(model_configs['input_shape'])
+# model_to_train = Model_Architectures.LoopTester.loop_tester(model_configs['input_shape'])
 
 train_loop_configs = {
     'model_name': 'LoopTester',
-    'model': model_to_train,
+    'model': Model_Architectures.LoopTester.loop_tester(model_configs['input_shape']),
     'optimizer': Adam(**model_configs['adam_opt']),
     'enable_mixed_precision': True,
     'loss': 'categorical_crossentropy',
     'metrics': ['categorical_accuracy'],
     'use_callbacks': True,
-    'epochs': 1,
-    'steps_per_epoch': 10
+    'epochs': 20,
+    'steps_per_epoch': 100
 }
 
 augmentation_dict = {
@@ -69,7 +67,7 @@ datagen_configs = {
     'test_dir': os.path.join(basic_configs['image_data_dir'], 'test'),
     'validation_split': 0.3,
     'target_size': (model_configs['input_shape'][0], model_configs['input_shape'][1]),
-    'batch_size': 1,
+    'batch_size': 24,
     'color_mode': 'grayscale',
     'shuffle': True,
     'seed': 777

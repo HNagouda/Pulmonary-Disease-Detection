@@ -30,7 +30,7 @@ class ImgDataGenerator:
             color_mode=self.color_mode,
             batch_size=self.batch_size,
             shuffle=self.shuffle,
-            class_mode='binary'
+            class_mode='categorical'
         )
 
         test_datagen = test_datagen.flow_from_directory(
@@ -39,7 +39,7 @@ class ImgDataGenerator:
             color_mode=self.color_mode,
             batch_size=self.batch_size,
             shuffle=self.shuffle,
-            class_mode='binary'
+            class_mode='categorical'
         )
 
         return [train_datagen, test_datagen]

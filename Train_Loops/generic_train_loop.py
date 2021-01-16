@@ -19,7 +19,7 @@ init_notebook_mode(connected=True)
 
 def reducelronplateau():
     reduce_lr_on_plateau = ReduceLROnPlateau(
-        monitor='loss', factor=0.05,
+        monitor='categorical_accuracy', factor=0.05,
         patience=5, verbose=1, mode='auto',
         min_delta=0.0001, cooldown=0, min_lr=0.001)
 
@@ -136,11 +136,11 @@ class GenericTrainLoop:
         fig = make_subplots(rows=1, cols=2,
                             subplot_titles=['Loss', 'Accuracy'])
 
-        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_loss'],
+        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['loss'],
                                  mode='lines+markers', name='Loss'),
                       row=1, col=1)
 
-        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['val_binary_accuracy'],
+        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['categorical_accuracy'],
                                  mode='lines+markers', name='Accuracy'),
                       row=1, col=2)
 
@@ -148,7 +148,7 @@ class GenericTrainLoop:
         fig.update_xaxes(title_text='Epochs', row=1, col=2)
 
         fig.update_layout(title=plot_title)
-        fig.write_image(os.path.join(self.plot_dir, self.runtime_name))
+        fig.write_image(f'{os.path.join(self.plot_dir, self.runtime_name)}.jpg')
 
     def save_model(self):
         self.model.save(f"{self.saved_models_dir}/{self.model_name}.hdf5")

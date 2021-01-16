@@ -4,6 +4,9 @@
 # Personal Files
 X-Personal/
 
+# Saved Models
+4_Saved_Models/
+
 # Cache Files
 .idea/
 .git/
