@@ -13,7 +13,7 @@ base_path = "C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detect
 
 basic_configs = {
     # RUNTIME NAME
-    'runtime_name': "Train_Loop_Trial_4",  # MUST change this every time the code is run
+    'runtime_name': "Xception_trial_5",  # MUST change this every time the code is run
 
     # PATHS
     'image_data_dir': os.path.join(base_path, '0_Datasets', 'Super Dataset', '256x256'),
@@ -24,11 +24,11 @@ basic_configs = {
 }
 
 model_configs = {
-    'input_shape': (256, 256, 1),
+    'input_shape': (256, 256, 3),
 
     # Adam Optimizer arguments
     'adam_opt': {
-        'lr': 0.001,
+        'lr': 0.0001,
         'beta_1': 0.9,
         'beta_2': 0.999,
         'epsilon': 1e-07,
@@ -39,15 +39,15 @@ model_configs = {
 # model_to_train = Model_Architectures.LoopTester.loop_tester(model_configs['input_shape'])
 
 train_loop_configs = {
-    'model_name': 'LoopTester',
-    'model': Model_Architectures.LoopTester.loop_tester(model_configs['input_shape']),
+    'model_name': 'Xception_trial5',
+    'model': Model_Architectures.Xception.xception(model_configs['input_shape']),
     'optimizer': Adam(**model_configs['adam_opt']),
     'enable_mixed_precision': True,
     'loss': 'categorical_crossentropy',
-    'metrics': ['categorical_accuracy'],
+    'metrics': ['accuracy'],
     'use_callbacks': True,
-    'epochs': 20,
-    'steps_per_epoch': 100
+    'epochs': 10,
+    'steps_per_epoch': 50
 }
 
 augmentation_dict = {
@@ -67,8 +67,8 @@ datagen_configs = {
     'test_dir': os.path.join(basic_configs['image_data_dir'], 'test'),
     'validation_split': 0.3,
     'target_size': (model_configs['input_shape'][0], model_configs['input_shape'][1]),
-    'batch_size': 24,
-    'color_mode': 'grayscale',
+    'batch_size': 4,
+    'color_mode': 'rgb',
     'shuffle': True,
     'seed': 777
 }

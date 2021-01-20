@@ -1,0 +1,51 @@
+--------------------------------------------------------------------------------
+Runtime Log for runtime: Xception_trial_5 
+--------------------------------------------------------------------------------
+
+basic_configs: 
+      runtime_name: Xception_trial_5
+      image_data_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\0_Datasets\Super Dataset\256x256
+      model_checkpoint_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\2_Model Checkpoints
+      plot_model_stats_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\3_Model Progress Plots
+      save_models_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\4_Saved_Models
+      train_models_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\Model_Architectures
+
+model_configs: 
+      input_shape: (256, 256, 3)
+      adam_opt: {'lr': 0.0001, 'beta_1': 0.9, 'beta_2': 0.999, 'epsilon': 1e-07, 'amsgrad': False}
+
+train_loop_configs: 
+      model_name: Xception_trial5
+      optimizer: <tensorflow.python.keras.optimizer_v2.adam.Adam object at 0x00000195A5CB9108>
+      enable_mixed_precision: True
+      loss: categorical_crossentropy
+      metrics: ['accuracy']
+      use_callbacks: True
+      epochs: 10
+      steps_per_epoch: 50
+
+augmentation_dict: 
+      width_shift_range: 0.25
+      height_shift_range: 0.25
+      brightness_range: (0.25, 0.9)
+      fill_mode: nearest
+      zoom_range: 0.5
+      horizontal_flip: False
+      vertical_flip: False
+
+datagen_configs: 
+      augmentation_dict: {'width_shift_range': 0.25, 'height_shift_range': 0.25, 'brightness_range': (0.25, 0.9), 'fill_mode': 'nearest', 'zoom_range': 0.5, 'horizontal_flip': False, 'vertical_flip': False}
+      use_augmentations: True
+      train_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\0_Datasets\Super Dataset\256x256\train
+      test_dir: C:/Users/harsh/Desktop/Python/0 - Projects/Pulmonary-Disease-Detection\0_Datasets\Super Dataset\256x256\test
+      validation_split: 0.3
+      target_size: (256, 256)
+      batch_size: 4
+      color_mode: rgb
+      shuffle: True
+      seed: 777
+
+
+Model Stats: 
+    Model Loss: 2.6134337186813354
+    Model Accuracy: 0.10000000149011612

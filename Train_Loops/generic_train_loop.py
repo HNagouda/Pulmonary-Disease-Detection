@@ -140,7 +140,7 @@ class GenericTrainLoop:
                                  mode='lines+markers', name='Loss'),
                       row=1, col=1)
 
-        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['categorical_accuracy'],
+        fig.add_trace(go.Scatter(x=np.arange(1, 11), y=history['accuracy'],
                                  mode='lines+markers', name='Accuracy'),
                       row=1, col=2)
 
